@@ -1,0 +1,18 @@
+{
+  "status": "FAILED",
+  "mode": "full",
+  "env": "dev",
+  "timestamp": "2026-05-02T01:59:17.906263",
+  "steps": {
+    "generate": {
+      "status": "PASS",
+      "duration": 0.45
+    },
+    "extract": {
+      "status": "PASS",
+      "duration": 0.09
+    }
+  },
+  "error": "cannot convert float NaN to integer",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\run_pipeline.py\", line 70, in run_pipeline\n    transformed = transform_all(raw_data, config)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\transform.py\", line 77, in transform_all\n    transformed[\"dim_date\"] = build_dim_date(raw[\"orders\"])\n                              ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\transform.py\", line 44, in build_dim_date\n    df[\"date_id\"] = df[\"full_date\"].dt.strftime(\"%Y%m%d\").astype(int)\n                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\generic.py\", line 6541, in astype\n    new_data = self._mgr.astype(dtype=dtype, errors=errors)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 611, in astype\n    return self.apply(\"astype\", dtype=dtype, errors=errors)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 442, in apply\n    applied = getattr(b, f)(**kwargs)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\internals\\blocks.py\", line 607, in astype\n    new_values = astype_array_safe(values, dtype, errors=errors)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\astype.py\", line 240, in astype_array_safe\n    new_values = astype_array(values, dtype, copy=copy)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\astype.py\", line 182, in astype_array\n    values = values.astype(dtype, copy=copy)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\string_arrow.py\", line 336, in astype\n    return super().astype(dtype, copy=copy)\n           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\base.py\", line 881, in astype\n    return np.asarray(self, dtype=dtype)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\array.py\", line 864, in __array__\n    return self.to_numpy(dtype=dtype, copy=copy)\n           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\array.py\", line 1729, in to_numpy\n    result[mask] = na_value\n    ~~~~~~^^^^^^\nValueError: cannot convert float NaN to integer\n"
+}

@@ -1,0 +1,35 @@
+{
+  "status": "SUCCESS",
+  "mode": "full",
+  "env": "dev",
+  "timestamp": "2026-05-02T02:05:46.523967",
+  "steps": {
+    "generate": {
+      "status": "PASS",
+      "duration": 0.52
+    },
+    "extract": {
+      "status": "PASS",
+      "duration": 0.06
+    },
+    "transform": {
+      "status": "PASS",
+      "duration": 0.13
+    },
+    "validate": {
+      "status": "PASS",
+      "duration": 0.01
+    },
+    "load": {
+      "status": "PASS",
+      "duration": 0.38,
+      "row_counts": {
+        "dim_customers": 490,
+        "dim_products": 96,
+        "dim_date": 731,
+        "fact_orders": 4531
+      }
+    }
+  },
+  "total_duration": 1.09
+}

@@ -1,0 +1,33 @@
+# ======================================================
+# E-commerce ETL Pipeline — Python Dependencies
+# ======================================================
+# Install:  pip install -r requirements.txt
+# ======================================================
+
+# --- Core ETL ---
+pandas>=2.1.0
+sqlalchemy>=2.0.0
+pyyaml>=6.0
+
+# --- Data Generation ---
+faker>=22.0.0
+
+# --- Google BigQuery (comment out if using SQLite only) ---
+google-cloud-bigquery>=3.14.0
+google-cloud-bigquery-storage>=2.24.0
+pyarrow>=14.0.0
+db-dtypes>=1.2.0
+
+# --- Apache Airflow (install separately on WSL/Linux) ---
+# apache-airflow>=2.8.0
+
+# --- Visualization ---
+plotly>=5.18.0
+kaleido>=0.2.1
+
+# --- Data Validation & Testing ---
+pytest>=7.4.0
+great-expectations>=0.18.0
+
+# --- UI ---
+streamlit>=1.30.0

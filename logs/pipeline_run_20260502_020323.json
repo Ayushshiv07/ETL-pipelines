@@ -1,0 +1,22 @@
+{
+  "status": "FAILED",
+  "mode": "full",
+  "env": "dev",
+  "timestamp": "2026-05-02T02:03:22.357052",
+  "steps": {
+    "generate": {
+      "status": "PASS",
+      "duration": 0.5
+    },
+    "extract": {
+      "status": "PASS",
+      "duration": 0.11
+    },
+    "transform": {
+      "status": "PASS",
+      "duration": 0.11
+    }
+  },
+  "error": "module 'great_expectations' has no attribute 'from_pandas'",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\run_pipeline.py\", line 75, in run_pipeline\n    validation_report = validate_all(transformed, config)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\validate.py\", line 63, in validate_all\n    report = validate_dataframe(df, name)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\validate.py\", line 12, in validate_dataframe\n    gdf = ge.from_pandas(df)\n          ^^^^^^^^^^^^^^\nAttributeError: module 'great_expectations' has no attribute 'from_pandas'\n"
+}

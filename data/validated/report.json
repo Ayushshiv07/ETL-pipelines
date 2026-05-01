@@ -1,0 +1,136 @@
+{
+  "dim_customers": {
+    "success": true,
+    "statistics": {
+      "evaluated_expectations": 4,
+      "successful_expectations": 4,
+      "unsuccessful_expectations": 0,
+      "success_percent": 100.0
+    },
+    "results": [
+      {
+        "check": "not_null_customer_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "unique_customer_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "not_null_email",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "regex_email",
+        "success": true,
+        "message": ""
+      }
+    ]
+  },
+  "dim_products": {
+    "success": true,
+    "statistics": {
+      "evaluated_expectations": 4,
+      "successful_expectations": 4,
+      "unsuccessful_expectations": 0,
+      "success_percent": 100.0
+    },
+    "results": [
+      {
+        "check": "not_null_product_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "unique_product_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "range_price",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "set_category",
+        "success": true,
+        "message": ""
+      }
+    ]
+  },
+  "dim_date": {
+    "success": true,
+    "statistics": {
+      "evaluated_expectations": 4,
+      "successful_expectations": 4,
+      "unsuccessful_expectations": 0,
+      "success_percent": 100.0
+    },
+    "results": [
+      {
+        "check": "not_null_date_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "unique_date_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "range_month",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "range_quarter",
+        "success": true,
+        "message": ""
+      }
+    ]
+  },
+  "fact_orders": {
+    "success": true,
+    "statistics": {
+      "evaluated_expectations": 6,
+      "successful_expectations": 6,
+      "unsuccessful_expectations": 0,
+      "success_percent": 100.0
+    },
+    "results": [
+      {
+        "check": "not_null_order_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "unique_order_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "range_revenue",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "not_null_customer_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "not_null_product_id",
+        "success": true,
+        "message": ""
+      },
+      {
+        "check": "set_status",
+        "success": true,
+        "message": ""
+      }
+    ]
+  }
+}

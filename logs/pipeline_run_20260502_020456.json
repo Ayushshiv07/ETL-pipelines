@@ -1,0 +1,22 @@
+{
+  "status": "FAILED",
+  "mode": "full",
+  "env": "dev",
+  "timestamp": "2026-05-02T02:04:56.173968",
+  "steps": {
+    "generate": {
+      "status": "PASS",
+      "duration": 0.5
+    },
+    "extract": {
+      "status": "PASS",
+      "duration": 0.06
+    },
+    "transform": {
+      "status": "PASS",
+      "duration": 0.12
+    }
+  },
+  "error": "Data validation failed. Check report.json for details.",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\run_pipeline.py\", line 75, in run_pipeline\n    validation_report = validate_all(transformed, config)\n  File \"C:\\Users\\hp\\Downloads\\ETL pipelines\\scripts\\validate.py\", line 132, in validate_all\n    raise ValueError(\"Data validation failed. Check report.json for details.\")\nValueError: Data validation failed. Check report.json for details.\n"
+}

@@ -1,0 +1,43 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Data & Logs (Ignore raw data and logs to keep repo clean)
+data/raw/*.csv
+data/transformed/*.csv
+data/validated/*.csv
+data/validated/*.html
+logs/*.log
+*.db
+
+# Streamlit
+.streamlit/
+
+# IDEs
+.vscode/
+.idea/
+.pytest_cache/

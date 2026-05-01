@@ -1,0 +1,67 @@
+# ======================================================
+# E-commerce ETL Pipeline — Central Configuration
+# ======================================================
+
+# --- General Settings ---
+project_name: "ecommerce_etl_pipeline"
+environment: "development"  # development | staging | production
+log_level: "INFO"
+
+# --- File Paths ---
+paths:
+  raw_data: "data/raw"
+  transformed_data: "data/transformed"
+  validated_data: "data/validated"
+  logs: "logs"
+
+# --- Raw Source Files ---
+source_files:
+  orders: "orders.csv"
+  customers: "customers.csv"
+  products: "products.csv"
+
+# --- Data Generation Settings ---
+data_generation:
+  num_customers: 500
+  num_products: 100
+  num_orders: 5000
+  null_rate: 0.02        # 2% intentional nulls for testing
+  duplicate_rate: 0.01   # 1% intentional duplicates for testing
+  seed: 42               # Reproducible random data
+
+# --- Star Schema Table Names ---
+tables:
+  fact_orders: "fact_orders"
+  dim_customers: "dim_customers"
+  dim_products: "dim_products"
+  dim_date: "dim_date"
+
+# --- BigQuery Settings (uncomment and fill when ready) ---
+bigquery:
+  project_id: "your-gcp-project-id"
+  dataset_id: "ecommerce_dwh"
+  location: "US"
+  credentials_path: "config/bigquery_credentials.json"
+
+# --- SQLite Settings (local development fallback) ---
+sqlite:
+  database_path: "data/ecommerce_dwh.db"
+
+# --- Load Mode ---
+load:
+  target: "sqlite"       # "sqlite" or "bigquery"
+  mode: "full"           # "full" or "incremental"
+
+# --- Airflow Settings ---
+airflow:
+  dag_id: "ecommerce_etl_pipeline"
+  schedule_interval: "@daily"
+  start_date: "2024-01-01"
+  retries: 3
+  retry_delay_minutes: 5
+
+# --- Validation Thresholds ---
+validation:
+  max_null_pct: 0.0         # 0% nulls allowed in primary keys
+  max_duplicate_pct: 0.0    # 0% duplicates allowed in primary keys
+  row_count_tolerance: 0.05  # 5% tolerance between source and target
