@@ -52,38 +52,19 @@ def extract_csv(
     filepath: str,
     dtype_overrides: Optional[dict] = None,
 ) -> pd.DataFrame:
-    """
-    Read a single CSV file into a Pandas DataFrame.
-
-    Args:
-        filepath: Absolute or relative path to the CSV file.
-        dtype_overrides: Optional dict of column -> dtype mappings.
-
-    Returns:
-        DataFrame with the raw data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-    """
+    """Read a CSV file into a DataFrame, or return empty if missing."""
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Source file not found: {filepath}")
+        logger.warning(f"  [WARN] Source file not found: {filepath}")
+        return pd.DataFrame()
 
     logger.info(f"Extracting: {filepath}")
-
-    df = pd.read_csv(filepath, dtype=dtype_overrides)
-
-    # Log basic stats
-    logger.info(f"  [OK] Rows: {len(df):,}  |  Columns: {len(df.columns)}")
-    logger.info(f"  [OK] Columns: {list(df.columns)}")
-
-    # Check for obvious issues
-    null_counts = df.isnull().sum()
-    if null_counts.any():
-        cols_with_nulls = null_counts[null_counts > 0].to_dict()
-        logger.warning(f"  [WARN] Nulls detected: {cols_with_nulls}")
-
-    return df
+    try:
+        df = pd.read_csv(filepath, dtype=dtype_overrides)
+        logger.info(f"  [OK] Rows: {len(df):,}  |  Columns: {len(df.columns)}")
+        return df
+    except Exception as e:
+        logger.error(f"  [ERROR] Failed to read {filepath}: {e}")
+        return pd.DataFrame()
 
 
 def extract_orders() -> pd.DataFrame:

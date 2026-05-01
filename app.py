@@ -356,12 +356,23 @@ elif page == "Upload Data":
 elif page == "Run Pipeline":
     st.title("⚙️ Pipeline Execution")
     
+    # Check if raw files exist
+    raw_dir = os.path.join(PROJECT_ROOT, "data", "raw")
+    missing_files = []
+    for f in ["orders.csv", "customers.csv", "products.csv"]:
+        if not os.path.exists(os.path.join(raw_dir, f)):
+            missing_files.append(f)
+            
+    if missing_files:
+        st.warning(f"⚠️ Source files missing: {', '.join(missing_files)}")
+        st.info("Since you are likely running on Streamlit Cloud, please use the **Upload Data** page to populate the source files first.")
+    
     auto_run = False
     if st.session_state.get("run_triggered", False):
         auto_run = True
         st.session_state.run_triggered = False
     
-    if st.button("🚀 Start Production ETL Run") or auto_run:
+    if st.button("🚀 Start Production ETL Run", disabled=len(missing_files)>0) or auto_run:
         st.session_state.logs = ""
         with st.status("Executing ETL Pipeline Stages...", expanded=True) as status:
             st.write("Initializing...")
