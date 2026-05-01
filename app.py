@@ -342,6 +342,7 @@ elif page == "Upload Data":
                     target_path = os.path.join(PROJECT_ROOT, config['paths']['raw_data'], target_filename)
                     
                     try:
+                        os.makedirs(os.path.dirname(target_path), exist_ok=True)
                         if save_mode == "Replace existing data" or not os.path.exists(target_path):
                             df_mapped.to_csv(target_path, index=False)
                         else:
