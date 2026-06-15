@@ -64,23 +64,20 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     background: #4f46e5;
 }
 
-/* Sidebar styling with subtle glowing borders */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important;
-    border-right: 1px solid rgba(99, 102, 241, 0.2) !important;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.05);
+/* Hide standard Streamlit sidebar and collapsed control */
+[data-testid="stSidebar"] {
+    display: none !important;
+}
+[data-testid="collapsedControl"] {
+    display: none !important;
 }
 
-/* Futuristic Sidebar Title */
-[data-testid="stSidebarNav"]::before {
-    content: "🛸 COMMAND SYSTEM";
-    display: block;
-    padding: 2rem 1.5rem 1rem 1.5rem;
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: #818cf8;
-    letter-spacing: 2px;
-    text-shadow: 0 0 8px rgba(129, 140, 248, 0.5);
+/* Ensure main content container clears the fixed header navbar and centers */
+.main .block-container {
+    padding-top: 5.8rem !important;
+    max-width: 94% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
 /* Premium Buttons with custom neon-glow */
@@ -202,57 +199,72 @@ section[data-testid="stSidebar"] {
     margin-bottom: 1.5rem;
 }
 
-/* Modern Sidebar Navigation overrides */
-div[data-testid="stSidebar"] div[data-testid="stRadio"] label > div:first-child {
+/* Style the horizontal radio container as a floating top navbar */
+div[data-testid="stRadio"] > div[role="radiogroup"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.25) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 14px 24px !important;
+    margin: 0 !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Hide scrollbars for the top navbar */
+div[data-testid="stRadio"] > div[role="radiogroup"]::-webkit-scrollbar {
     display: none !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-top: 10px;
+/* Hide the horizontal radio circles */
+div[data-testid="stRadio"] > div[role="radiogroup"] label > div:first-child {
+    display: none !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] label {
+/* Style the horizontal navigation items as tabs */
+div[data-testid="stRadio"] > div[role="radiogroup"] label {
     background: rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.04) !important;
-    border-radius: 10px !important;
-    padding: 10px 14px !important;
-    margin-bottom: 0px !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    margin: 0 !important;
     color: #94a3b8 !important;
     cursor: pointer !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    display: flex !important;
-    align-items: center !important;
-    width: 100% !important;
-    font-size: 0.88rem !important;
-    font-weight: 500 !important;
-}
-
-div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] label:hover {
-    background: rgba(99, 102, 241, 0.1) !important;
-    border-color: rgba(99, 102, 241, 0.3) !important;
-    color: #f1f5f9 !important;
-    transform: translateX(4px);
-}
-
-div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-    background: linear-gradient(90deg, rgba(79, 70, 229, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%) !important;
-    border: 1px solid rgba(99, 102, 241, 0.45) !important;
-    color: #a5b4fc !important;
-    box-shadow: inset 3px 0 0 #6366f1, 0 4px 15px rgba(99, 102, 241, 0.1) !important;
+    font-size: 0.82rem !important;
     font-weight: 600 !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stRadio"] > label {
-    font-size: 0.75rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1.5px !important;
-    color: #64748b !important;
-    font-weight: 700 !important;
-    margin-bottom: 6px !important;
+/* Hover style for tabs */
+div[data-testid="stRadio"] > div[role="radiogroup"] label:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+    color: #f1f5f9 !important;
+    transform: translateY(-1px) !important;
 }
+
+/* Selected active tab styling */
+div[data-testid="stRadio"] > div[role="radiogroup"] label:has(input:checked) {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -302,8 +314,7 @@ for k, v in [("status","Idle"),("last_run","Never"),("logs",""),("run_ms",0)]:
     if k not in st.session_state:
         st.session_state[k] = v
 
-# ── Sidebar ──────────────────────────────────────────────────────────────────
-st.sidebar.title("🛒 ETL Command Center")
+# ── Top Navigation Bar ────────────────────────────────────────────────────────
 PAGES = [
     "🏠 Home",
     "⚙️ Run Pipeline",
@@ -315,12 +326,16 @@ PAGES = [
     "📥 Power BI Export",
     "📜 System Logs"
 ]
-raw_page = st.sidebar.radio("Navigation", PAGES, index=0)
+raw_page = st.radio("Navigation", PAGES, index=0, horizontal=True, label_visibility="collapsed")
 page = raw_page.split(" ", 1)[1] if " " in raw_page else raw_page
-st.sidebar.divider()
-st.sidebar.caption(f"**Env:** {config['environment'].upper()}")
-st.sidebar.caption(f"**Warehouse:** {config['load']['target'].upper()}")
-st.sidebar.caption(f"**Data Quality:** {quality_score()}%")
+
+# Secondary info status bar
+st.markdown("<div style='margin-top: -15px;'></div>", unsafe_allow_html=True)
+c_env, c_wh, c_dq = st.columns(3)
+c_env.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>🌍 ENV: <span style='color:#818cf8;'>{config['environment'].upper()}</span></div>", unsafe_allow_html=True)
+c_wh.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>🗄️ WAREHOUSE: <span style='color:#eab308;'>{config['load']['target'].upper()}</span></div>", unsafe_allow_html=True)
+c_dq.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>✅ QUALITY score: <span style='color:#10b981;'>{quality_score()}%</span></div>", unsafe_allow_html=True)
+st.markdown("<hr style='border:0;border-top:1px solid rgba(99,102,241,0.15);margin-top:12px;margin-bottom:24px;'/>", unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════════════════════════
 # PAGE: HOME
