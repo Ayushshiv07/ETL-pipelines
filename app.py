@@ -634,8 +634,9 @@ GROUP BY d.day_name, d.day_of_week ORDER BY d.day_of_week;""", language="sql")
         dow["avg_rev"] = dow["revenue"] / dow["orders"]
 
         fig = make_subplots(rows=1, cols=2, subplot_titles=["Orders by Day","Revenue by Day"])
-        day_colors = ["#ef4444" if dow.loc[i,"is_weekend"] if "is_weekend" in dow.columns else False
-                      else "#6366f1" for i in range(len(dow))]
+        weekend_days = {"Saturday", "Sunday"}
+        day_colors = ["#ef4444" if d in weekend_days else "#6366f1" for d in dow["day_name"]]
+
         fig.add_trace(go.Bar(x=dow["day_name"], y=dow["orders"], marker_color="#6366f1", name="Orders"), 1, 1)
         fig.add_trace(go.Bar(x=dow["day_name"], y=dow["revenue"], marker_color="#10b981", name="Revenue"), 1, 2)
         fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
