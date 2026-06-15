@@ -215,67 +215,81 @@ def get_pipeline_html(state="Idle"):
         pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
 
-        // 3. Grid / Ground
-        const gridHelper = new THREE.GridHelper(200, 50, 0x1e293b, 0x0f172a);
-        gridHelper.position.y = -5;
-        scene.add(gridHelper);
+        // 3. Dotted Grid Floor Theme
+        const dotGridGeo = new THREE.BufferGeometry();
+        const dotGridPositions = [];
+        const dotSpacing = 2.0;
+        const dotGridSize = 60;
+        for (let x = -dotGridSize; x <= dotGridSize; x += dotSpacing) {
+            for (let z = -dotGridSize; z <= dotGridSize; z += dotSpacing) {
+                dotGridPositions.push(x, -5, z);
+            }
+        }
+        dotGridGeo.setAttribute('position', new THREE.Float32BufferAttribute(dotGridPositions, 3));
+        const dotGridMat = new THREE.PointsMaterial({
+            color: 0x4f46e5, // indigo glow
+            size: 0.12,
+            transparent: true,
+            opacity: 0.28
+        });
+        const dotGrid = new THREE.Points(dotGridGeo, dotGridMat);
+        scene.add(dotGrid);
 
         // 4. Create Nodes
         const nodes = [];
         const clickableObjects = [];
 
-        function createNode(id, name, type, x, y, z, color, size = 1.5) {{
+        function createNode(id, name, type, x, y, z, color, size = 1.5) {
             let geometry;
-            if (type === 'cube') {{
+            if (type === 'cube') {
                 geometry = new THREE.BoxGeometry(size * 1.3, size * 1.3, size * 1.3);
-            }} else if (type === 'cylinder') {{
+            } else if (type === 'cylinder') {
                 geometry = new THREE.CylinderGeometry(size, size, size * 1.2, 16);
-            }} else if (type === 'torus') {{
+            } else if (type === 'torus') {
                 geometry = new THREE.TorusGeometry(size * 0.8, size * 0.3, 12, 24);
-            }} else if (type === 'double-cone') {{
+            } else if (type === 'double-cone') {
                 geometry = new THREE.OctahedronGeometry(size);
-            }} else {{
+            } else {
                 geometry = new THREE.SphereGeometry(size, 32, 32);
-            }}
+            }
 
-            const material = new THREE.MeshPhongMaterial({{
+            const material = new THREE.MeshPhongMaterial({
                 color: color,
                 emissive: color,
                 emissiveIntensity: 0.25,
                 shininess: 100,
                 transparent: true,
                 opacity: 0.9
-            }});
+            });
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.position.set(x, y, z);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-            mesh.userData = {{ id: id, name: name, originalColor: color, type: type }};
+            mesh.userData = { id: id, name: name, originalColor: color, type: type };
             scene.add(mesh);
             nodes.push(mesh);
             clickableObjects.push(mesh);
 
             // Add wireframe outer ring/shield for validation or special nodes
-            if (id === 'validate') {{
+            if (id === 'validate') {
                 const ringGeo = new THREE.RingGeometry(size * 1.4, size * 1.5, 32);
-                const ringMat = new THREE.MeshBasicMaterial({{ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }});
+                const ringMat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.rotation.x = Math.PI / 2;
                 mesh.add(ring);
                 mesh.userData.outerRing = ring;
-            }}
+            }
 
             // Add text tag floating above
-            // (Using small spheres for labels in 3D is heavy, we'll draw simple 3D geometry tag indicators)
             const tagGeo = new THREE.BoxGeometry(0.2, 0.4, 0.2);
-            const tagMat = new THREE.MeshBasicMaterial({{ color: 0xffffff }});
+            const tagMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
             const tag = new THREE.Mesh(tagGeo, tagMat);
             tag.position.y = size + 0.8;
             mesh.add(tag);
 
             return mesh;
-        }}
+        }
 
         // Nodes Configuration
         // Layout horizontally along X axis
@@ -294,10 +308,10 @@ def get_pipeline_html(state="Idle"):
 
         const biNode = createNode('bi', 'BI & Analytics', 'cube', 23, 0, 0, COLORS.biPink, 1.4);
 
-        // 5. Connective Cables (Bezier Curves)
+        // 5. Dotted Connection Cables
         const connections = [];
         
-        function drawConnection(p1, p2, color) {{
+        function drawConnection(p1, p2, color) {
             const start = p1.position;
             const end = p2.position;
             
@@ -305,14 +319,26 @@ def get_pipeline_html(state="Idle"):
             const controlPoint = new THREE.Vector3((start.x + end.x)/2, (start.y + end.y)/2 + 2.5, (start.z + end.z)/2);
             const curve = new THREE.QuadraticBezierCurve3(start, controlPoint, end);
             
-            const points = curve.getPoints(30);
+            const points = curve.getPoints(40);
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const material = new THREE.LineBasicMaterial({{ color: color, linewidth: 2, transparent: true, opacity: 0.6 }});
-            const line = new THREE.Line(geometry, material);
+            
+            // Faint backing line for structure
+            const lineMat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.1 });
+            const line = new THREE.Line(geometry, lineMat);
             scene.add(line);
             
-            connections.push({{ curve: curve, points: points, line: line }});
-        }}
+            // Glowing dotted path
+            const dotMat = new THREE.PointsMaterial({
+                color: color,
+                size: 0.22,
+                transparent: true,
+                opacity: 0.65
+            });
+            const dottedLine = new THREE.Points(geometry, dotMat);
+            scene.add(dottedLine);
+            
+            connections.push({ curve: curve, points: points, line: line, dotted: dottedLine });
+        }
 
         drawConnection(sourceNode, extractNode, 0x4f46e5);
         drawConnection(extractNode, transformNode, 0x4f46e5);
@@ -320,6 +346,7 @@ def get_pipeline_html(state="Idle"):
         drawConnection(validateNode, loadNode, 0x4f46e5);
         drawConnection(loadNode, dwhCenter, 0xeab308);
         drawConnection(dwhCenter, biNode, 0xec4899);
+
 
         // Connect central DWH to dimensions directly
         drawConnection(dwhCenter, dimCust, 0xeab308);
