@@ -203,7 +203,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 }
 
 /* Style the horizontal radio container as a floating top navbar */
-div[data-testid="stRadio"] > div[role="radiogroup"] {
+.top-navbar-container div[data-testid="stRadio"] > div[role="radiogroup"] {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -226,17 +226,17 @@ div[data-testid="stRadio"] > div[role="radiogroup"] {
 }
 
 /* Hide scrollbars for the top navbar */
-div[data-testid="stRadio"] > div[role="radiogroup"]::-webkit-scrollbar {
+.top-navbar-container div[data-testid="stRadio"] > div[role="radiogroup"]::-webkit-scrollbar {
     display: none !important;
 }
 
 /* Hide the horizontal radio circles */
-div[data-testid="stRadio"] > div[role="radiogroup"] label > div:first-child {
+.top-navbar-container div[data-testid="stRadio"] > div[role="radiogroup"] label > div:first-child {
     display: none !important;
 }
 
 /* Style the horizontal navigation items as tabs */
-div[data-testid="stRadio"] > div[role="radiogroup"] label {
+.top-navbar-container div[data-testid="stRadio"] > div[role="radiogroup"] label {
     background: rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.04) !important;
     border-radius: 20px !important;
@@ -253,7 +253,7 @@ div[data-testid="stRadio"] > div[role="radiogroup"] label {
 }
 
 /* Hover style for tabs */
-div[data-testid="stRadio"] > div[role="radiogroup"] label:hover {
+.top-navbar-container div[data-testid="stRadio"] > div[role="radiogroup"] label:hover {
     background: rgba(99, 102, 241, 0.1) !important;
     border-color: rgba(99, 102, 241, 0.35) !important;
     color: #f1f5f9 !important;
@@ -261,7 +261,7 @@ div[data-testid="stRadio"] > div[role="radiogroup"] label:hover {
 }
 
 /* Selected active tab styling */
-div[data-testid="stRadio"] > div[role="radiogroup"] label:has(input:checked) {
+.top-navbar-container div[data-testid="stRadio"] > div[role="radiogroup"] label:has(input:checked) {
     background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     color: #ffffff !important;
@@ -338,7 +338,9 @@ try:
 except ValueError:
     nav_index = 0
 
+st.markdown('<div class="top-navbar-container">', unsafe_allow_html=True)
 raw_page = st.radio("Navigation", PAGES, index=nav_index, key="navigation_radio", horizontal=True, label_visibility="collapsed")
+st.markdown('</div>', unsafe_allow_html=True)
 st.session_state["navigation"] = raw_page
 page = raw_page.split(" ", 1)[1] if " " in raw_page else raw_page
 
