@@ -936,23 +936,187 @@ elif page == "Analytics (8 Queries)":
     # ════════════════════════════════════════════════════════════════════════════
 elif page == "Data Preview":
     st.title("🔍 Data Explorer")
-    layer = st.radio("Layer", ["Raw","Transformed"], horizontal=True)
-    tables = ["orders","customers","products"] if layer == "Raw" else ["fact_orders","dim_customers","dim_products","dim_date"]
-    folder = "raw" if layer == "Raw" else "transformed"
 
-    table = st.selectbox("Table", tables)
-    df = get_table(table, folder)
+    tab_pipeline, tab_upload = st.tabs(["📦 Pipeline Tables", "📤 Upload Your Own CSV"])
 
-    if df is not None:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Rows", f"{len(df):,}")
-        c2.metric("Columns", len(df.columns))
-        c3.metric("Memory", f"{df.memory_usage(deep=True).sum()/1024:.1f} KB")
-        st.dataframe(df, use_container_width=True, height=450)
-        st.download_button(f"Download {table}.csv", df.to_csv(index=False),
-                           f"{table}.csv", "text/csv", use_container_width=True)
-    else:
-        st.warning("Run the pipeline first.")
+    # ── Tab 1: Pipeline Tables ─────────────────────────────────────────────────
+    with tab_pipeline:
+        layer = st.radio("Layer", ["Raw", "Transformed"], horizontal=True, key="layer_radio")
+        tables = ["orders","customers","products"] if layer == "Raw" else ["fact_orders","dim_customers","dim_products","dim_date"]
+        folder = "raw" if layer == "Raw" else "transformed"
+
+        table = st.selectbox("Table", tables)
+        df = get_table(table, folder)
+
+        if df is not None:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Rows", f"{len(df):,}")
+            c2.metric("Columns", len(df.columns))
+            c3.metric("Memory", f"{df.memory_usage(deep=True).sum()/1024:.1f} KB")
+            st.dataframe(df, use_container_width=True, height=450)
+            st.download_button(f"⬇ Download {table}.csv", df.to_csv(index=False),
+                               f"{table}.csv", "text/csv", use_container_width=True)
+        else:
+            st.warning("No data found. Please run the pipeline first.")
+            if st.button("⚙️ Go to Run Pipeline Page", key="preview_go_run", use_container_width=True):
+                st.session_state["navigation"] = "⚙️ Run Pipeline"
+                st.rerun()
+
+    # ── Tab 2: Custom CSV Upload ───────────────────────────────────────────────
+    with tab_upload:
+        st.markdown("""
+        <div class="resume-banner">
+          <b style="color:#818cf8">📤 Custom CSV Analyser</b><br>
+          Upload any CSV file to instantly explore it — shape, data types, missing values,
+          numeric statistics, column distributions and correlation heatmap included.
+        </div>
+        """, unsafe_allow_html=True)
+
+        uploaded_file = st.file_uploader(
+            "Drop your CSV file here or click to browse",
+            type=["csv"],
+            help="Supports any CSV file up to 200 MB"
+        )
+
+        if uploaded_file is not None:
+            try:
+                udf = pd.read_csv(uploaded_file)
+                st.success(f"✅ **{uploaded_file.name}** loaded successfully!")
+
+                # ── Overview KPIs ──────────────────────────────────────────────
+                st.subheader("📊 Dataset Overview")
+                k1, k2, k3, k4, k5 = st.columns(5)
+                num_cols  = udf.select_dtypes(include="number").columns.tolist()
+                cat_cols  = udf.select_dtypes(exclude="number").columns.tolist()
+                miss_vals = udf.isnull().sum().sum()
+                miss_pct  = round(miss_vals / (udf.shape[0] * udf.shape[1]) * 100, 2)
+
+                k1.markdown(f"""<div class="kpi-card"><p class="kpi-value">{udf.shape[0]:,}</p><p class="kpi-label">Rows</p></div>""", unsafe_allow_html=True)
+                k2.markdown(f"""<div class="kpi-card"><p class="kpi-value">{udf.shape[1]}</p><p class="kpi-label">Columns</p></div>""", unsafe_allow_html=True)
+                k3.markdown(f"""<div class="kpi-card"><p class="kpi-value">{len(num_cols)}</p><p class="kpi-label">Numeric Cols</p></div>""", unsafe_allow_html=True)
+                k4.markdown(f"""<div class="kpi-card"><p class="kpi-value">{len(cat_cols)}</p><p class="kpi-label">Text Cols</p></div>""", unsafe_allow_html=True)
+                k5.markdown(f"""<div class="kpi-card"><p class="kpi-value">{miss_pct}%</p><p class="kpi-label">Missing Data</p></div>""", unsafe_allow_html=True)
+
+                st.divider()
+
+                # ── Data Table ─────────────────────────────────────────────────
+                st.subheader("📋 Data Preview")
+                n_rows = st.slider("Rows to preview", min_value=5, max_value=min(500, len(udf)), value=min(50, len(udf)), step=5)
+                st.dataframe(udf.head(n_rows), use_container_width=True, height=350)
+
+                st.divider()
+
+                # ── Column Info Table ──────────────────────────────────────────
+                st.subheader("🗂️ Column Details")
+                col_info = pd.DataFrame({
+                    "Column":       udf.columns,
+                    "Data Type":    udf.dtypes.astype(str).values,
+                    "Non-Null":     udf.notnull().sum().values,
+                    "Null Count":   udf.isnull().sum().values,
+                    "Null %":       (udf.isnull().sum() / len(udf) * 100).round(2).values,
+                    "Unique Values": udf.nunique().values,
+                })
+                st.dataframe(col_info, use_container_width=True)
+
+                st.divider()
+
+                # ── Numeric Statistics ─────────────────────────────────────────
+                if num_cols:
+                    st.subheader("📈 Numeric Statistics")
+                    desc = udf[num_cols].describe().T
+                    desc["skewness"] = udf[num_cols].skew().round(3)
+                    st.dataframe(desc.style.format("{:.3f}"), use_container_width=True)
+
+                    st.divider()
+
+                    # ── Column Distributions ───────────────────────────────────
+                    st.subheader("📉 Column Distribution")
+                    sel_col = st.selectbox("Select a column to visualise", num_cols, key="dist_col")
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        fig_hist = px.histogram(
+                            udf, x=sel_col, nbins=40,
+                            color_discrete_sequence=["#6366f1"],
+                            title=f"Distribution of {sel_col}"
+                        )
+                        fig_hist.update_layout(
+                            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                            font_color="white", margin=dict(t=40, b=10)
+                        )
+                        st.plotly_chart(fig_hist, use_container_width=True)
+                    with col_b:
+                        fig_box = px.box(
+                            udf, y=sel_col,
+                            color_discrete_sequence=["#06b6d4"],
+                            title=f"Box Plot of {sel_col}"
+                        )
+                        fig_box.update_layout(
+                            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                            font_color="white", margin=dict(t=40, b=10)
+                        )
+                        st.plotly_chart(fig_box, use_container_width=True)
+
+                    st.divider()
+
+                    # ── Correlation Heatmap ────────────────────────────────────
+                    if len(num_cols) >= 2:
+                        st.subheader("🔥 Correlation Heatmap")
+                        corr = udf[num_cols].corr().round(2)
+                        fig_heat = px.imshow(
+                            corr, text_auto=True, aspect="auto",
+                            color_continuous_scale="RdBu_r",
+                            title="Pearson Correlation Matrix"
+                        )
+                        fig_heat.update_layout(
+                            paper_bgcolor="rgba(0,0,0,0)",
+                            font_color="white", margin=dict(t=50, b=10)
+                        )
+                        st.plotly_chart(fig_heat, use_container_width=True)
+                        st.divider()
+
+                # ── Categorical Analysis ───────────────────────────────────────
+                if cat_cols:
+                    st.subheader("🏷️ Categorical Column Analysis")
+                    sel_cat = st.selectbox("Select a categorical column", cat_cols, key="cat_col")
+                    top_vals = udf[sel_cat].value_counts().head(20).reset_index()
+                    top_vals.columns = [sel_cat, "Count"]
+                    fig_bar = px.bar(
+                        top_vals, x=sel_cat, y="Count",
+                        color="Count", color_continuous_scale="Plasma",
+                        title=f"Top 20 Values — {sel_cat}"
+                    )
+                    fig_bar.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                        font_color="white", margin=dict(t=50, b=10)
+                    )
+                    st.plotly_chart(fig_bar, use_container_width=True)
+                    st.divider()
+
+                # ── Download cleaned file ──────────────────────────────────────
+                st.subheader("⬇ Download Analysed File")
+                st.download_button(
+                    label=f"⬇ Download {uploaded_file.name}",
+                    data=udf.to_csv(index=False),
+                    file_name=uploaded_file.name,
+                    mime="text/csv",
+                    use_container_width=True
+                )
+
+            except Exception as e:
+                st.error(f"❌ Failed to read CSV: {e}")
+        else:
+            st.markdown("""
+            <div style="text-align:center; padding: 3rem 2rem; border: 2px dashed rgba(99,102,241,0.3);
+                        border-radius: 16px; margin-top: 1rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📂</div>
+                <div style="color:#94a3b8; font-size: 1rem; font-weight: 600;">
+                    Upload any CSV file to begin analysis
+                </div>
+                <div style="color:#64748b; font-size: 0.82rem; margin-top: 0.5rem;">
+                    Supports up to 200 MB · Any column schema · Instant profiling
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════════════════════════
 # PAGE: VALIDATION REPORT
