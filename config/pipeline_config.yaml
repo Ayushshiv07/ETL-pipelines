@@ -22,9 +22,9 @@ source_files:
 
 # --- Data Generation Settings ---
 data_generation:
-  num_customers: 500
-  num_products: 100
-  num_orders: 5000
+  num_customers: 5000    # 5,000 unique customers
+  num_products: 500      # 500 SKUs across 10 categories
+  num_orders: 100000     # 100,000+ orders (resume claim: 100,000+ records)
   null_rate: 0.02        # 2% intentional nulls for testing
   duplicate_rate: 0.01   # 1% intentional duplicates for testing
   seed: 42               # Reproducible random data

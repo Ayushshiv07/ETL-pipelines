@@ -41,3 +41,11 @@ logs/*.log
 .vscode/
 .idea/
 .pytest_cache/
+
+# Secrets — NEVER commit these
+.env
+config/bigquery_credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
