@@ -84,6 +84,14 @@ def run_pipeline(target="sqlite", mode="full", generate_data=False):
             logger.warning(f"    {len(failed)} validation(s) failed — proceeding with caution")
         logger.info(f"    Duration: {time.time() - step_start:.2f}s\n")
 
+        # --- Step 3.5: Profile ---
+        logger.info(">>> STEP 3.5: PROFILE")
+        step_start_p = time.time()
+        from scripts.profile import run_profiling
+        run_profiling()
+        logger.info(f"    Duration: {time.time() - step_start_p:.2f}s\n")
+
+
         # --- Step 4: Load ---
         logger.info(">>> STEP 4: LOAD")
         step_start = time.time()

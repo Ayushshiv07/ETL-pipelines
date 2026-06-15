@@ -27,6 +27,7 @@ from scripts.extract import extract_all
 from scripts.transform import transform_all
 from scripts.validate import validate_all
 from scripts.load import load_all
+from scripts.three_pipeline import get_pipeline_html
 
 # ── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -39,77 +40,165 @@ st.set_page_config(
 # ── Premium CSS ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
-.stApp { background: radial-gradient(135deg, #0f172a 0%, #020617 100%); }
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    border-right: 1px solid rgba(99,102,241,0.2);
+.stApp {
+    background: radial-gradient(circle at top right, #0d1527, #020617 70%);
 }
 
-/* Primary button */
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #020617;
+}
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4f46e5;
+}
+
+/* Sidebar styling with subtle glowing borders */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important;
+    border-right: 1px solid rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.05);
+}
+
+/* Futuristic Sidebar Title */
+[data-testid="stSidebarNav"]::before {
+    content: "🛸 COMMAND SYSTEM";
+    display: block;
+    padding: 2rem 1.5rem 1rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #818cf8;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(129, 140, 248, 0.5);
+}
+
+/* Premium Buttons with custom neon-glow */
 .stButton>button {
-    width: 100%; border-radius: 10px; height: 3.2em;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    width: 100%; border-radius: 12px; height: 3.2em;
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
     color: white; font-weight: 700; border: none;
-    transition: all 0.25s ease; letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 1px;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
 }
 .stButton>button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(99,102,241,0.45);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.45);
+    background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+}
+.stButton>button:active {
+    transform: translateY(0px);
 }
 
-/* KPI Cards */
+/* Glassmorphism KPI Cards */
 .kpi-card {
-    background: rgba(30,41,59,0.8);
+    background: rgba(15, 23, 42, 0.55);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(99,102,241,0.25);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     border-radius: 16px;
-    padding: 1.5rem 1.8rem;
+    padding: 1.5rem 1rem;
     text-align: center;
-    transition: 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
-.kpi-card:hover { border-color: rgba(99,102,241,0.6); }
-.kpi-value { font-size: 2.4rem; font-weight: 800; color: #818cf8; margin: 0; }
-.kpi-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
-.kpi-sub { font-size: 0.75rem; color: #10b981; margin-top: 2px; }
+.kpi-card:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.12);
+    transform: translateY(-2px);
+}
+.kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #818cf8 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+.kpi-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+.kpi-sub {
+    font-size: 0.7rem;
+    color: #10b981;
+    margin-top: 4px;
+    opacity: 0.85;
+}
 
-/* Section cards */
+/* Premium Section Cards */
 .section-card {
-    background: rgba(30,41,59,0.6);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 14px;
     padding: 1.4rem;
     margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Stage badges */
-.badge-done  { color:#10b981; font-weight:700; }
-.badge-run   { color:#f59e0b; font-weight:700; }
-.badge-idle  { color:#64748b; font-weight:700; }
+/* Stage Badges */
+.badge-done  { color:#10b981; font-weight:700; text-shadow: 0 0 6px rgba(16, 185, 129, 0.3); }
+.badge-run   { color:#f59e0b; font-weight:700; text-shadow: 0 0 6px rgba(245, 158, 17, 0.3); }
+.badge-idle  { color:#94a3b8; font-weight:700; }
 
 /* Metric overrides */
-[data-testid="stMetricValue"] { font-weight:800; font-size:2rem!important; color:#818cf8; }
-[data-testid="stMetricLabel"] { color:#94a3b8; font-size:0.78rem!important; }
+[data-testid="stMetricValue"] {
+    font-weight:800;
+    font-size:1.8rem!important;
+    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+[data-testid="stMetricLabel"] { color:#94a3b8; font-size:0.75rem!important; font-weight: 600; }
 
 /* Tab styling */
-.stTabs [data-baseweb="tab"] { color:#94a3b8; font-weight:600; }
-.stTabs [aria-selected="true"] { color:#818cf8!important; border-bottom-color:#6366f1!important; }
+.stTabs [data-baseweb="tab"] {
+    color:#94a3b8;
+    font-weight:600;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.stTabs [aria-selected="true"] {
+    color:#818cf8!important;
+    border-bottom-color:#6366f1!important;
+    text-shadow: 0 0 8px rgba(129, 140, 248, 0.2);
+}
 
-/* Code / log area */
-.log-box { background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:1rem;
-           font-family:monospace; font-size:0.78rem; color:#94a3b8; max-height:300px; overflow-y:auto; }
+/* Log area code box styling */
+.log-box {
+    background:#020617;
+    border:1px solid rgba(99, 102, 241, 0.15);
+    border-radius:10px;
+    padding:1rem;
+    font-family:monospace;
+    font-size:0.78rem;
+    color:#cbd5e1;
+    max-height:300px;
+    overflow-y:auto;
+}
 
-/* Resume highlight banner */
+/* Premium Resume highlight banner */
 .resume-banner {
-    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.1));
-    border: 1px solid rgba(99,102,241,0.3);
-    border-radius: 12px;
-    padding: 1rem 1.4rem;
+    background: linear-gradient(90deg, rgba(79, 70, 229, 0.08) 0%, rgba(6, 182, 212, 0.05) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 14px;
+    padding: 1.2rem 1.6rem;
     margin-bottom: 1.5rem;
 }
 </style>
@@ -164,7 +253,7 @@ for k, v in [("status","Idle"),("last_run","Never"),("logs",""),("run_ms",0)]:
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 st.sidebar.title("🛒 ETL Command Center")
 PAGES = ["Home", "Run Pipeline", "Analytics (8 Queries)", "Data Preview",
-         "Validation Report", "SQL Workbench", "Power BI Export", "System Logs"]
+         "Validation Report", "Data Profiling", "SQL Workbench", "Power BI Export", "System Logs"]
 page = st.sidebar.radio("Navigation", PAGES, index=0)
 st.sidebar.divider()
 st.sidebar.caption(f"**Env:** {config['environment'].upper()}")
@@ -225,22 +314,9 @@ if page == "Home":
     col_main, col_side = st.columns([3, 2])
 
     with col_main:
-        st.subheader("Pipeline Architecture")
-        stages = [
-            ("📥 Extract", "CSVs → DataFrames", "#6366f1"),
-            ("🔄 Transform", "Clean + Star Schema", "#10b981"),
-            ("✅ Validate", "16 Quality Checks", "#f59e0b"),
-            ("📤 Load", "SQLite / BigQuery", "#ec4899"),
-        ]
-        s_cols = st.columns(4)
-        for col, (icon_name, desc, color) in zip(s_cols, stages):
-            col.markdown(f"""
-            <div style="background:rgba(30,41,59,0.7);border:1px solid {color}40;
-                        border-radius:12px;padding:1rem;text-align:center;">
-              <div style="font-size:1.6rem">{icon_name.split()[0]}</div>
-              <div style="font-weight:700;color:{color};font-size:0.9rem">{icon_name.split(' ',1)[1]}</div>
-              <div style="color:#64748b;font-size:0.75rem;margin-top:4px">{desc}</div>
-            </div>""", unsafe_allow_html=True)
+        st.subheader("Interactive 3D Pipeline Monitor")
+        pipeline_html = get_pipeline_html(state=st.session_state["status"])
+        st.components.v1.html(pipeline_html, height=390, scrolling=False)
 
         # Last run stats
         if st.session_state["run_ms"] > 0:
@@ -288,7 +364,7 @@ if page == "Home":
         if dim_date is not None and dim_prod_h is not None:
             df_m = (fact
                     .merge(dim_date[["date_id","month","year","month_name"]], on="date_id")
-                    .merge(dim_prod_h[["product_id","category"]], on="product_id"))
+                    .merge(dim_prod_h[["product_id","product_name","category"]], on="product_id"))
             df_m_active = df_m[df_m["order_status"] != "cancelled"]
 
             ht1, ht2, ht3, ht4 = st.tabs(["📈 Revenue Trend", "🥧 Category Mix", "📦 Order Status", "🏆 Top Products"])
@@ -323,12 +399,13 @@ if page == "Home":
                 st.plotly_chart(fig_stat, use_container_width=True)
 
             with ht4:
-                top10 = df_m_active.groupby("category")["revenue"].sum().nlargest(10).reset_index()
-                fig_top = px.bar(top10, x="revenue", y="category", orientation="h",
-                                 color="revenue", color_continuous_scale="Plasma")
+                top10 = df_m_active.groupby("product_name")["revenue"].sum().nlargest(10).reset_index()
+                fig_top = px.bar(top10, x="revenue", y="product_name", orientation="h",
+                                 color="revenue", color_continuous_scale="Plasma",
+                                 labels={"revenue": "Revenue ($)", "product_name": "Product"})
                 fig_top.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                                      font_color="white", yaxis={"categoryorder":"total ascending"},
-                                      margin=dict(t=10,b=10))
+                                       font_color="white", yaxis={"categoryorder":"total ascending"},
+                                       margin=dict(t=10,b=10))
                 st.plotly_chart(fig_top, use_container_width=True)
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -336,6 +413,10 @@ if page == "Home":
 # ════════════════════════════════════════════════════════════════════════════
 elif page == "Run Pipeline":
     st.title("⚙️ Pipeline Execution")
+
+    st.subheader("Interactive 3D Pipeline Monitor")
+    pipeline_html = get_pipeline_html(state=st.session_state["status"])
+    st.components.v1.html(pipeline_html, height=350, scrolling=False)
 
     # File readiness check
     raw_dir = os.path.join(PROJECT_ROOT, config["paths"]["raw_data"])
@@ -359,6 +440,7 @@ elif page == "Run Pipeline":
         load_mode = st.radio("Load Mode", ["full", "incremental"], horizontal=True)
 
     if st.button("🚀 Start ETL Run  (Extract → Transform → Validate → Load)", disabled=bool(missing and not gen_fresh)) or auto:
+        st.session_state.status = "Running"
         st.session_state.logs = ""
         t0 = time.time()
 
@@ -390,6 +472,11 @@ elif page == "Run Pipeline":
             results = validate_all(star)
             passed = sum(1 for r in results if r.passed)
             log(f"   {passed}/{len(results)} checks passed")
+
+            log("📊 PROFILE — Generating statistics and outlier report...")
+            from scripts.profile import run_profiling
+            run_profiling()
+            log("   Data profiling complete")
 
             log(f"📤 LOAD — Writing to {config['load']['target'].upper()} ({load_mode} mode)...")
             load_all(star, mode=load_mode)
@@ -524,6 +611,46 @@ ORDER BY lifetime_value DESC LIMIT 20;""", language="sql")
         col2.metric("Median CLV", f"${clv['clv'].median():,.2f}")
         col3.metric("Top 10% CLV", f"${clv['clv'].quantile(0.9):,.2f}")
 
+        # ── 3D RFM Customer Segmentation ──────────────────────────────────────
+        st.divider()
+        st.subheader("🔮 3D RFM Customer Segmentation Space")
+        st.caption("Interactive 3D visualization mapping Recency (Days since last purchase), Frequency (Number of orders), and Monetary Value (Total spend) for each customer.")
+
+        if dim_d is not None:
+            # Let's compute RFM
+            df_rfm = active.merge(dim_d[["date_id", "full_date"]], on="date_id")
+            df_rfm["full_date"] = pd.to_datetime(df_rfm["full_date"])
+            max_date = df_rfm["full_date"].max()
+
+            rfm = df_rfm.groupby("customer_id").agg(
+                monetary=("revenue", "sum"),
+                frequency=("order_id", "nunique"),
+                last_order_date=("full_date", "max")
+            ).reset_index()
+            rfm["recency"] = (max_date - rfm["last_order_date"]).dt.days
+
+            # Use top 1000 customers for smooth Plotly rendering performance
+            rfm_sample = rfm.nlargest(1000, "monetary")
+
+            fig_3d = px.scatter_3d(
+                rfm_sample, x="recency", y="frequency", z="monetary",
+                color="monetary", size="monetary",
+                color_continuous_scale="Plasma",
+                labels={"recency": "Recency (Days)", "frequency": "Frequency (Orders)", "monetary": "Monetary ($)"},
+            )
+            fig_3d.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                font_color="white",
+                scene=dict(
+                    xaxis=dict(backgroundcolor="rgba(15,23,42,0.5)", gridcolor="rgba(255,255,255,0.08)", showbackground=True),
+                    yaxis=dict(backgroundcolor="rgba(15,23,42,0.5)", gridcolor="rgba(255,255,255,0.08)", showbackground=True),
+                    zaxis=dict(backgroundcolor="rgba(15,23,42,0.5)", gridcolor="rgba(255,255,255,0.08)", showbackground=True)
+                ),
+                margin=dict(l=0, r=0, b=0, t=10),
+                height=550
+            )
+            st.plotly_chart(fig_3d, use_container_width=True)
+
     # ── Query 4: Repeat vs New ─────────────────────────────────────────────
     with tab4:
         st.subheader("Query 4 — Repeat vs New Customers")
@@ -584,6 +711,34 @@ GROUP BY p.category ORDER BY revenue DESC;""", language="sql")
             fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
             st.plotly_chart(fig, use_container_width=True)
         st.dataframe(cat[["category","orders","units","revenue","pct"]], use_container_width=True)
+
+        # ── 3D Category-Month-Revenue Matrix ──────────────────────────────────
+        st.divider()
+        st.subheader("🔮 3D Category-Month-Revenue Matrix")
+        st.caption("Interactive 3D scatter plot showcasing seasonal revenue variations across all product categories over months.")
+
+        cat_month = active.groupby(["category", "month_name", "month"]).agg(
+            revenue=("revenue", "sum")
+        ).reset_index().sort_values("month")
+
+        fig_cat_3d = px.scatter_3d(
+            cat_month, x="category", y="month_name", z="revenue",
+            color="revenue", size="revenue",
+            color_continuous_scale="Viridis",
+            labels={"category": "Category", "month_name": "Month", "revenue": "Revenue ($)"},
+        )
+        fig_cat_3d.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            font_color="white",
+            scene=dict(
+                xaxis=dict(backgroundcolor="rgba(15,23,42,0.5)", gridcolor="rgba(255,255,255,0.08)", showbackground=True),
+                yaxis=dict(backgroundcolor="rgba(15,23,42,0.5)", gridcolor="rgba(255,255,255,0.08)", showbackground=True),
+                zaxis=dict(backgroundcolor="rgba(15,23,42,0.5)", gridcolor="rgba(255,255,255,0.08)", showbackground=True)
+            ),
+            margin=dict(l=0, r=0, b=0, t=10),
+            height=550
+        )
+        st.plotly_chart(fig_cat_3d, use_container_width=True)
 
     # ── Query 6: AOV Trend ────────────────────────────────────────────────
     with tab6:
@@ -735,6 +890,67 @@ elif page == "Validation Report":
 
     st.download_button("Download Report CSV", rdf.to_csv(index=False),
                        "validation_report.csv", "text/csv", use_container_width=True)
+
+# ════════════════════════════════════════════════════════════════════════════
+# PAGE: DATA PROFILING
+# ════════════════════════════════════════════════════════════════════════════
+elif page == "Data Profiling":
+    st.title("📊 Data Profiling & Outlier Report")
+    st.caption("Advanced statistical profiling, distributions, and IQR-based outlier analysis.")
+
+    path = os.path.join(PROJECT_ROOT, "data", "validated", "profile_report.csv")
+    if not os.path.exists(path):
+        st.warning("No profiling report found. Please run the pipeline first to generate data profiles.")
+        st.stop()
+
+    pdf = pd.read_csv(path)
+    
+    # Filter by table
+    tables = ["All Tables"] + sorted(pdf["table_name"].unique().tolist())
+    sel_tbl = st.selectbox("Select Table to View", tables)
+    
+    filtered_df = pdf if sel_tbl == "All Tables" else pdf[pdf["table_name"] == sel_tbl]
+    
+    # Summary Metrics
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Total Columns Profiled", len(filtered_df))
+    # Count columns with outliers
+    outlier_cols = filtered_df[filtered_df["outliers_count"] > 0]
+    c2.metric("Columns with Outliers", len(outlier_cols))
+    # Max outlier percentage
+    max_outlier_pct = filtered_df["outliers_pct"].max()
+    c3.metric("Max Outlier Rate", f"{max_outlier_pct}%" if pd.notnull(max_outlier_pct) else "0%")
+
+    st.divider()
+    
+    # Display table
+    st.dataframe(filtered_df, use_container_width=True)
+
+    # Visualization
+    st.subheader("Visual Analysis")
+    
+    # Chart 1: Outliers
+    numeric_df = filtered_df[filtered_df["outliers_count"] > 0]
+    if not numeric_df.empty:
+        fig_out = px.bar(numeric_df, x="column_name", y="outliers_pct",
+                         title="Outlier Percentage by Column (IQR Method)",
+                         labels={"outliers_pct": "Outlier Rate (%)", "column_name": "Column"},
+                         color="outliers_pct", color_continuous_scale="Reds")
+        fig_out.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
+        st.plotly_chart(fig_out, use_container_width=True)
+    else:
+        st.info("No outliers detected in the selected view.")
+
+    # Chart 2: Distinct Values count
+    fig_dist = px.bar(filtered_df, x="column_name", y="unique_count",
+                      title="Distinct Values Count per Column",
+                      labels={"unique_count": "Distinct Count", "column_name": "Column"},
+                      color="unique_count", color_continuous_scale="Viridis")
+    fig_dist.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
+    st.plotly_chart(fig_dist, use_container_width=True)
+
+    st.download_button("Download Profiling Report CSV", filtered_df.to_csv(index=False),
+                       "data_profile_report.csv", "text/csv", use_container_width=True)
 
 # ════════════════════════════════════════════════════════════════════════════
 # PAGE: SQL WORKBENCH

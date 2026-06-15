@@ -197,5 +197,135 @@ class TestValidation:
         assert result.passed
 
 
+class TestLoad:
+    def test_sqlite_load_full_and_incremental(self, tmp_path):
+        import time
+        import scripts.load as load_module
+        from scripts.load import load_to_sqlite
+        from sqlalchemy import create_engine, text
+
+        
+        test_db_filename = f"test_{int(time.time())}.db"
+        test_db_dir = tmp_path / "data"
+        test_db_dir.mkdir(parents=True, exist_ok=True)
+        test_db_path = test_db_dir / test_db_filename
+        
+        # Save original db path and mock it
+        original_db_path = load_module.config["sqlite"]["database_path"]
+        load_module.config["sqlite"]["database_path"] = str(test_db_path)
+        
+        try:
+            # First batch (Full load)
+            star_schema_1 = {
+                "fact_orders": pd.DataFrame({
+                    "order_id": [1, 2],
+                    "customer_id": [10, 20],
+                    "product_id": [100, 200],
+                    "date_id": [20240101, 20240102],
+                    "revenue": [100.0, 200.0],
+                    "order_status": ["completed", "completed"]
+                }),
+                "dim_customers": pd.DataFrame({
+                    "customer_id": [10, 20],
+                    "name": ["Alice", "Bob"],
+                    "email": ["alice@test.com", "bob@test.com"],
+                    "location": ["NYC", "LA"]
+                }),
+                "dim_products": pd.DataFrame({
+                    "product_id": [100, 200],
+                    "product_name": ["Widget A", "Widget B"],
+                    "category": ["Electronics", "Electronics"],
+                    "price": [100.0, 200.0]
+                }),
+                "dim_date": pd.DataFrame({
+                    "date_id": [20240101, 20240102],
+                    "full_date": ["2024-01-01", "2024-01-02"],
+                    "day": [1, 2],
+                    "month": [1, 1],
+                    "year": [2024, 2024],
+                    "quarter": [1, 1]
+                })
+            }
+            
+            load_to_sqlite(star_schema_1, mode="full")
+            
+            # Verify full load
+            engine = create_engine(f"sqlite:///{test_db_path}")
+            with engine.connect() as conn:
+                orders_count = conn.execute(text("SELECT COUNT(*) FROM fact_orders")).scalar()
+                cust_count = conn.execute(text("SELECT COUNT(*) FROM dim_customers")).scalar()
+                assert orders_count == 2
+                assert cust_count == 2
+                
+                # Check data value
+                bob_name = conn.execute(text("SELECT name FROM dim_customers WHERE customer_id = 20")).scalar()
+                assert bob_name == "Bob"
+            
+            # Second batch (Incremental load)
+            star_schema_2 = {
+                "fact_orders": pd.DataFrame({
+                    "order_id": [2, 3],  # 2 is old (date_id=20240102 <= watermark), 3 is new (date_id=20240103 > watermark)
+                    "customer_id": [20, 30],
+                    "product_id": [200, 300],
+                    "date_id": [20240102, 20240103],
+                    "revenue": [220.0, 300.0],
+                    "order_status": ["completed", "pending"]
+                }),
+                "dim_customers": pd.DataFrame({
+                    "customer_id": [20, 30],
+                    "name": ["Bob Updated", "Charlie"],
+                    "email": ["bob.updated@test.com", "charlie@test.com"],
+                    "location": ["SF", "Chicago"]
+                }),
+                "dim_products": pd.DataFrame({
+                    "product_id": [200, 300],
+                    "product_name": ["Widget B Updated", "Widget C"],
+                    "category": ["Electronics", "Clothing"],
+                    "price": [220.0, 300.0]
+                }),
+                "dim_date": pd.DataFrame({
+                    "date_id": [20240102, 20240103],
+                    "full_date": ["2024-01-02", "2024-01-03"],
+                    "day": [2, 3],
+                    "month": [1, 1],
+                    "year": [2024, 2024],
+                    "quarter": [1, 1]
+                })
+            }
+            
+            load_to_sqlite(star_schema_2, mode="incremental")
+            
+            # Verify incremental load results
+            with engine.connect() as conn:
+                # fact_orders should have 3 rows total (appended order 3, filtered out order 2)
+                orders_count = conn.execute(text("SELECT COUNT(*) FROM fact_orders")).scalar()
+                assert orders_count == 3
+                
+                # order 3 exists, order 2 revenue is still 200.0 (not overwritten because it was filtered)
+                ord2_rev = conn.execute(text("SELECT revenue FROM fact_orders WHERE order_id = 2")).scalar()
+                assert ord2_rev == 200.0
+                ord3_rev = conn.execute(text("SELECT revenue FROM fact_orders WHERE order_id = 3")).scalar()
+                assert ord3_rev == 300.0
+                
+                # dim_customers should have 3 rows total, Bob should be updated to "Bob Updated"
+                cust_count = conn.execute(text("SELECT COUNT(*) FROM dim_customers")).scalar()
+                assert cust_count == 3
+                bob_name = conn.execute(text("SELECT name FROM dim_customers WHERE customer_id = 20")).scalar()
+                assert bob_name == "Bob Updated"
+                charlie_name = conn.execute(text("SELECT name FROM dim_customers WHERE customer_id = 30")).scalar()
+                assert charlie_name == "Charlie"
+                
+                # dim_products should have 3 rows total, Widget B should be updated
+                prod_count = conn.execute(text("SELECT COUNT(*) FROM dim_products")).scalar()
+                assert prod_count == 3
+                prod2_name = conn.execute(text("SELECT product_name FROM dim_products WHERE product_id = 200")).scalar()
+                assert prod2_name == "Widget B Updated"
+                
+        finally:
+            # Restore original configuration
+            load_module.config["sqlite"]["database_path"] = original_db_path
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

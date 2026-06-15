@@ -54,8 +54,8 @@ def extract_csv(
 ) -> pd.DataFrame:
     """Read a CSV file into a DataFrame, or return empty if missing."""
     if not os.path.exists(filepath):
-        logger.warning(f"  [WARN] Source file not found: {filepath}")
-        return pd.DataFrame()
+        logger.error(f"  [ERROR] Source file not found: {filepath}")
+        raise FileNotFoundError(f"Source file not found: {filepath}")
 
     logger.info(f"Extracting: {filepath}")
     try:
