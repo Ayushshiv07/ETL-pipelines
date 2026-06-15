@@ -352,13 +352,7 @@ st.session_state["navigation"] = raw_page
 page = raw_page.split(" ", 1)[1] if " " in raw_page else raw_page
 
 
-# Secondary info status bar
-st.markdown("<div style='margin-top: -15px;'></div>", unsafe_allow_html=True)
-c_env, c_wh, c_dq = st.columns(3)
-c_env.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>🌍 ENV: <span style='color:#818cf8;'>{config['environment'].upper()}</span></div>", unsafe_allow_html=True)
-c_wh.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>🗄️ WAREHOUSE: <span style='color:#eab308;'>{config['load']['target'].upper()}</span></div>", unsafe_allow_html=True)
-c_dq.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>✅ QUALITY score: <span style='color:#10b981;'>{quality_score()}%</span></div>", unsafe_allow_html=True)
-st.markdown("<hr style='border:0;border-top:1px solid rgba(99,102,241,0.15);margin-top:12px;margin-bottom:24px;'/>", unsafe_allow_html=True)
+
 
 # ════════════════════════════════════════════════════════════════════════════
 # PAGE: HOME
@@ -1194,3 +1188,11 @@ elif page == "System Logs":
         st.caption(f"Showing last {min(len(filtered),500)} lines of {len(lines)} total.")
     else:
         st.info("No log files yet — run the pipeline first.")
+
+# Secondary info status bar at the bottom
+st.markdown("<hr style='border:0;border-top:1px solid rgba(99,102,241,0.15);margin-top:40px;margin-bottom:15px;'/>", unsafe_allow_html=True)
+c_env, c_wh, c_dq = st.columns(3)
+c_env.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>🌍 ENV: <span style='color:#818cf8;'>{config['environment'].upper()}</span></div>", unsafe_allow_html=True)
+c_wh.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>🗄️ WAREHOUSE: <span style='color:#eab308;'>{config['load']['target'].upper()}</span></div>", unsafe_allow_html=True)
+c_dq.markdown(f"<div style='text-align:center;color:#64748b;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;'>✅ QUALITY score: <span style='color:#10b981;'>{quality_score()}%</span></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
