@@ -258,9 +258,9 @@ if page == "Home":
                 "axis": {"range": [0, 100], "tickcolor": "white"},
                 "bar": {"color": "#6366f1"},
                 "steps": [
-                    {"range": [0, 60], "color": "#ef444430"},
-                    {"range": [60, 80], "color": "#f59e0b30"},
-                    {"range": [80, 100], "color": "#10b98130"},
+                    {"range": [0, 60],  "color": "rgba(239,68,68,0.18)"},
+                    {"range": [60, 80], "color": "rgba(245,158,11,0.18)"},
+                    {"range": [80, 100],"color": "rgba(16,185,129,0.18)"},
                 ],
                 "threshold": {"line": {"color": "#10b981", "width": 4}, "value": 95}
             }
@@ -283,21 +283,53 @@ if page == "Home":
     # ── Quick Mini-chart ───────────────────────────────────────────────────
     if fact is not None:
         st.divider()
-        st.subheader("Revenue Snapshot")
         dim_date = get_table("dim_date")
-        if dim_date is not None:
-            df_m = fact.merge(dim_date[["date_id","month","year"]], on="date_id")
-            df_m = df_m[df_m["order_status"] != "cancelled"]
-            monthly = df_m.groupby(["year","month"])["revenue"].sum().reset_index()
-            monthly["period"] = monthly["year"].astype(str) + "-" + monthly["month"].astype(str).str.zfill(2)
-            monthly = monthly.sort_values("period").tail(24)
-            fig_snap = px.area(monthly, x="period", y="revenue",
-                               color_discrete_sequence=["#6366f1"],
-                               labels={"revenue": "Revenue ($)", "period": ""})
-            fig_snap.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                                   font_color="white", margin=dict(t=10,b=30))
-            fig_snap.update_traces(fillcolor="rgba(99,102,241,0.15)")
-            st.plotly_chart(fig_snap, use_container_width=True)
+        dim_prod_h = get_table("dim_products")
+        if dim_date is not None and dim_prod_h is not None:
+            df_m = (fact
+                    .merge(dim_date[["date_id","month","year","month_name"]], on="date_id")
+                    .merge(dim_prod_h[["product_id","category"]], on="product_id"))
+            df_m_active = df_m[df_m["order_status"] != "cancelled"]
+
+            ht1, ht2, ht3, ht4 = st.tabs(["📈 Revenue Trend", "🥧 Category Mix", "📦 Order Status", "🏆 Top Products"])
+
+            with ht1:
+                monthly = df_m_active.groupby(["year","month","month_name"])["revenue"].sum().reset_index()
+                monthly["period"] = monthly["year"].astype(str) + "-" + monthly["month"].astype(str).str.zfill(2)
+                monthly = monthly.sort_values("period").tail(24)
+                fig_snap = px.area(monthly, x="period", y="revenue",
+                                   color_discrete_sequence=["#6366f1"],
+                                   labels={"revenue": "Revenue ($)", "period": ""})
+                fig_snap.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                                       font_color="white", margin=dict(t=10,b=30))
+                fig_snap.update_traces(fillcolor="rgba(99,102,241,0.15)")
+                st.plotly_chart(fig_snap, use_container_width=True)
+
+            with ht2:
+                cat_rev = df_m_active.groupby("category")["revenue"].sum().reset_index()
+                fig_pie = px.pie(cat_rev, values="revenue", names="category", hole=0.42,
+                                 color_discrete_sequence=px.colors.qualitative.Set2)
+                fig_pie.update_layout(paper_bgcolor="rgba(0,0,0,0)", font_color="white", margin=dict(t=10,b=10))
+                st.plotly_chart(fig_pie, use_container_width=True)
+
+            with ht3:
+                stat = df_m.groupby("order_status").agg(orders=("order_id","count"), revenue=("revenue","sum")).reset_index()
+                fig_stat = px.bar(stat, x="order_status", y="orders",
+                                  color="order_status",
+                                  color_discrete_map={"completed":"#10b981","shipped":"#6366f1",
+                                                      "pending":"#f59e0b","cancelled":"#ef4444","returned":"#8b5cf6"})
+                fig_stat.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                                       font_color="white", showlegend=False, margin=dict(t=10,b=10))
+                st.plotly_chart(fig_stat, use_container_width=True)
+
+            with ht4:
+                top10 = df_m_active.groupby("category")["revenue"].sum().nlargest(10).reset_index()
+                fig_top = px.bar(top10, x="revenue", y="category", orientation="h",
+                                 color="revenue", color_continuous_scale="Plasma")
+                fig_top.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                                      font_color="white", yaxis={"categoryorder":"total ascending"},
+                                      margin=dict(t=10,b=10))
+                st.plotly_chart(fig_top, use_container_width=True)
 
 # ════════════════════════════════════════════════════════════════════════════
 # PAGE: RUN PIPELINE
@@ -394,7 +426,7 @@ elif page == "Analytics (8 Queries)":
         st.warning("No data found. Please run the pipeline first.")
         st.stop()
 
-    df = fact.merge(dim_d[["date_id","month","year","month_name","quarter","day_name","is_weekend"]], on="date_id")
+    df = fact.merge(dim_d[["date_id","month","year","month_name","quarter","day_name","day_of_week","is_weekend"]], on="date_id")
     df = df.merge(dim_p[["product_id","product_name","category","price"]], on="product_id")
     active = df[df["order_status"] != "cancelled"]
 
