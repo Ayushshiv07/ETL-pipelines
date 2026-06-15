@@ -201,6 +201,58 @@ section[data-testid="stSidebar"] {
     padding: 1.2rem 1.6rem;
     margin-bottom: 1.5rem;
 }
+
+/* Modern Sidebar Navigation overrides */
+div[data-testid="stSidebar"] div[data-testid="stRadio"] label > div:first-child {
+    display: none !important;
+}
+
+div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 10px;
+}
+
+div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] label {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 0px !important;
+    color: #94a3b8 !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+}
+
+div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] label:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
+    color: #f1f5f9 !important;
+    transform: translateX(4px);
+}
+
+div[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+    background: linear-gradient(90deg, rgba(79, 70, 229, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.45) !important;
+    color: #a5b4fc !important;
+    box-shadow: inset 3px 0 0 #6366f1, 0 4px 15px rgba(99, 102, 241, 0.1) !important;
+    font-weight: 600 !important;
+}
+
+div[data-testid="stSidebar"] div[data-testid="stRadio"] > label {
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    color: #64748b !important;
+    font-weight: 700 !important;
+    margin-bottom: 6px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -252,9 +304,19 @@ for k, v in [("status","Idle"),("last_run","Never"),("logs",""),("run_ms",0)]:
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 st.sidebar.title("🛒 ETL Command Center")
-PAGES = ["Home", "Run Pipeline", "Analytics (8 Queries)", "Data Preview",
-         "Validation Report", "Data Profiling", "SQL Workbench", "Power BI Export", "System Logs"]
-page = st.sidebar.radio("Navigation", PAGES, index=0)
+PAGES = [
+    "🏠 Home",
+    "⚙️ Run Pipeline",
+    "📊 Analytics (8 Queries)",
+    "🔍 Data Preview",
+    "🛡️ Validation Report",
+    "📈 Data Profiling",
+    "🔧 SQL Workbench",
+    "📥 Power BI Export",
+    "📜 System Logs"
+]
+raw_page = st.sidebar.radio("Navigation", PAGES, index=0)
+page = raw_page.split(" ", 1)[1] if " " in raw_page else raw_page
 st.sidebar.divider()
 st.sidebar.caption(f"**Env:** {config['environment'].upper()}")
 st.sidebar.caption(f"**Warehouse:** {config['load']['target'].upper()}")
