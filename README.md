@@ -12,7 +12,7 @@
 Demo Video: https://drive.google.com/file/d/1goUnf-UvPi4nalBdd6X6mXcGq3YRg4P-/view?usp=sharing
 ---
 
-## 🏆 Resume Highlights
+## Resume Highlights
 
 | Achievement | Details |
 |---|---|
@@ -26,37 +26,37 @@ Demo Video: https://drive.google.com/file/d/1goUnf-UvPi4nalBdd6X6mXcGq3YRg4P-/vi
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```mermaid
 flowchart LR
-    subgraph Sources["📂 Raw Sources"]
+    subgraph Sources["Raw Sources"]
         A[orders.csv\n100,000+ rows]
         B[customers.csv\n5,000 rows]
         C[products.csv\n500 rows]
     end
 
-    subgraph ETL["⚙️ ETL Pipeline"]
+    subgraph ETL["ETL Pipeline"]
         D[Extract\nextract.py]
         E[Transform\ntransform.py]
         F[Validate\n16 checks]
         G[Load\nload.py]
     end
 
-    subgraph DWH["🗄️ Star-Schema DWH"]
+    subgraph DWH["Star-Schema DWH"]
         H[fact_orders\n96K rows]
         I[dim_customers]
         J[dim_products]
         K[dim_date]
     end
 
-    subgraph BI["📊 BI Layer"]
+    subgraph BI["BI Layer"]
         L[Streamlit Dashboard\n8 Analytics Queries]
         M[Power BI Export\nCSV + ODBC]
         N[Plotly Charts\nInteractive]
     end
 
-    subgraph Orchestration["🔄 Orchestration"]
+    subgraph Orchestration["Orchestration"]
         O[Airflow DAG\nDaily Schedule]
         P[Python Scheduler\nWindows-compatible]
     end
@@ -75,7 +75,7 @@ flowchart LR
 
 ---
 
-## 📊 Star Schema
+## Star Schema
 
 ```
           ┌─────────────────┐
@@ -113,7 +113,7 @@ flowchart LR
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 | Component | Technology |
 |---|---|
@@ -130,13 +130,13 @@ flowchart LR
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ETL pipelines/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml              # ✅ CI/CD — auto test on every push
+│       └── ci.yml              # CI/CD — auto test on every push
 ├── config/
 │   └── pipeline_config.yaml    # Central configuration
 ├── dags/
@@ -167,7 +167,7 @@ ETL pipelines/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone & Setup
 
@@ -204,7 +204,7 @@ Visit: **http://localhost:8501**
 
 ---
 
-## 📊 8 Business Analytics Queries
+## 8 Business Analytics Queries
 
 All queries run live in the Streamlit dashboard against the data warehouse:
 
@@ -221,7 +221,7 @@ All queries run live in the Streamlit dashboard against the data warehouse:
 
 ---
 
-## ✅ Data Validation (16 Checks)
+## Data Validation (16 Checks)
 
 | Check | Tables |
 |---|---|
@@ -235,7 +235,7 @@ All queries run live in the Streamlit dashboard against the data warehouse:
 
 ---
 
-## ☁️ BigQuery Setup (Production)
+## BigQuery Setup (Production)
 
 ```bash
 # 1. Add credentials to .env
@@ -251,7 +251,7 @@ python scripts/run_pipeline.py --target bigquery --mode full
 
 ---
 
-## 🔄 Airflow Setup (WSL/Linux)
+## Airflow Setup (WSL/Linux)
 
 ```bash
 pip install apache-airflow
@@ -265,7 +265,7 @@ Visit `http://localhost:8080` → Enable `ecommerce_etl_pipeline` DAG.
 
 ---
 
-## 📊 Power BI Integration
+## Power BI Integration
 
 1. Open Power BI Desktop → **Get Data → ODBC**
 2. Connection: `Driver={SQLite3 ODBC Driver};Database=data/ecommerce_dwh.db`
@@ -281,7 +281,7 @@ CLV = AVERAGEX(VALUES(fact_orders[customer_id]), CALCULATE(SUM(fact_orders[reven
 
 ---
 
-## 🧪 Run Tests
+## Run Tests
 
 ```bash
 pytest tests/ -v
