@@ -9,6 +9,7 @@
 
 > **Production-level ETL pipeline** processing **100,000+ e-commerce records** through automated Extract → Transform → Validate → Load stages, with a star-schema data warehouse and an **8-query analytics dashboard** built with Plotly & Streamlit.
 
+Demo Video: https://drive.google.com/file/d/1goUnf-UvPi4nalBdd6X6mXcGq3YRg4P-/view?usp=sharing
 ---
 
 ## 🏆 Resume Highlights
